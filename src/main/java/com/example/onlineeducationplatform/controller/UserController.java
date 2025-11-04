@@ -101,4 +101,6 @@ public class UserController {
     // 10. (移除) 移除所有用于显示JSP页面的方法
     // 例如：showRegisterPage(), showEditPage(), showLoginPage()
     // 这些页面现在由 Vue.js 前端负责渲染
+
+    //模拟发布评论的功能
 }
