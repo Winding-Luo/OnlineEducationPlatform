@@ -2,11 +2,14 @@ package com.example.onlineeducationplatform.service;
 
 import com.example.onlineeducationplatform.mapper.UserMapper;
 import com.example.onlineeducationplatform.model.User;
+import org.apache.shiro.crypto.hash.SimpleHash;
+import org.apache.shiro.util.ByteSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional; // 确保导入事务注解
 
 import java.util.List;
+import java.util.Set;
 
 // 1. 必须使用 @Service 注解标记 [cite: 263]
 // 2. 必须实现 UserService 接口
@@ -28,7 +31,21 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional // 默认是读写事务
     public void insertUser(User user) {
-        // 你可以在这里添加业务逻辑，比如检查用户名是否已存在
+        // 1. 加密算法 (SHA-256)
+        String algorithmName = "SHA-256";
+        // 2. 原始密码
+        String source = user.getPassword();
+        // 3. 盐值 (使用用户名作为盐值，确保唯一性)
+        ByteSource salt = ByteSource.Util.bytes(user.getUsername());
+        // 4. 哈希迭代次数
+        int hashIterations = 1024;
+
+        SimpleHash hash = new SimpleHash(algorithmName, source, salt, hashIterations);
+        String encryptedPassword = hash.toHex();
+
+        // 5. 将加密后的密码存入数据库
+        user.setPassword(encryptedPassword);
+
         userMapper.insertUser(user);
     }
 
@@ -65,5 +82,18 @@ public class UserServiceImpl implements UserService {
     public List<User> getAllUsers() {
         // 调用 mapper 中我们刚刚在 XML 里定义的 "findAll" 方法
         return userMapper.findAll();
+    }
+
+    //用于Shiro的新方法
+    @Override
+    @Transactional(readOnly = true)
+    public Set<String> findRoles(String username) {
+        return userMapper.findRoles(username);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Set<String> findPermissions(String username) {
+        return userMapper.findPermissions(username);
     }
 }

@@ -29,4 +29,23 @@
     <select id="findByUsernameAndPassword" resultType="com.example.onlineeducationplatform.model.User">
         SELECT * FROM users WHERE username = #{username} AND password = #{password}
     </select>
+
+<!--    添加角色和权限查询-->
+    <select id="findRoles" parameterType="string" resultType="string">
+        SELECT r.role_name
+        FROM users u
+                 INNER JOIN user_roles ur ON u.id = ur.user_id
+                 INNER JOIN roles r ON ur.role_id = r.id
+        WHERE u.username = #{username}
+    </select>
+
+    <select id="findPermissions" parameterType="string" resultType="string">
+        SELECT p.permission_name
+        FROM users u
+                 INNER JOIN user_roles ur ON u.id = ur.user_id
+                 INNER JOIN roles r ON ur.role_id = r.id
+                 INNER JOIN role_permissions rp ON r.id = rp.role_id
+                 INNER JOIN permissions p ON rp.permission_id = p.id
+        WHERE u.username = #{username}
+    </select>
 </mapper>

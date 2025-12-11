@@ -5,6 +5,7 @@ import com.example.onlineeducationplatform.model.User;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Set;
 
 @Repository // 遵循文档中的描述
 public interface UserMapper {
@@ -14,4 +15,8 @@ public interface UserMapper {
     void updateUser(User user);
     void deleteUser(int id);
     List<User> findAll(); // <-- 添加这一行
+
+    //用于权限控制
+    Set<String> findRoles(String username);
+    Set<String> findPermissions(String username);
 }

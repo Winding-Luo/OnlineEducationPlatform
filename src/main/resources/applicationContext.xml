@@ -3,16 +3,19 @@
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xmlns:context="http://www.springframework.org/schema/context"
        xmlns:tx="http://www.springframework.org/schema/tx"
+       xmlns:aop="http://www.springframework.org/schema/aop"
        xsi:schemaLocation="http://www.springframework.org/schema/beans
        http://www.springframework.org/schema/beans/spring-beans.xsd
        http://www.springframework.org/schema/context
        http://www.springframework.org/schema/context/spring-context.xsd
        http://www.springframework.org/schema/tx
-       http://www.springframework.org/schema/tx/spring-tx.xsd">
+       http://www.springframework.org/schema/tx/spring-tx.xsd
+       http://www.springframework.org/schema/aop
+       http://www.springframework.org/schema/aop/spring-aop.xsd">
 
     <context:property-placeholder location="classpath:jdbc.properties"/>
 
-    <bean id="dataSource" class="com.mchange.v2.c3p0.ComboPooledDataSource">
+    <bean id="dataSource" class="com.mchange.v2.c3p0.ComboPooledDataSource" destroy-method="close">
         <property name="driverClass" value="${jdbc.driver}"/>
         <property name="jdbcUrl" value="${jdbc.url}"/>
         <property name="user" value="${jdbc.username}"/>
@@ -33,8 +36,73 @@
         <property name="dataSource" ref="dataSource"/>
     </bean>
 
-    <tx:annotation-driven transaction-manager="transactionManager"/>
-
     <context:component-scan base-package="com.example.onlineeducationplatform.service"/>
+
+    <tx:annotation-driven proxy-target-class="true" transaction-manager="transactionManager"/>
+
+
+    <bean id="lifecycleBeanPostProcessor" class="org.apache.shiro.spring.LifecycleBeanPostProcessor"/>
+
+    <bean id="credentialsMatcher" class="org.apache.shiro.authc.credential.HashedCredentialsMatcher">
+        <property name="hashAlgorithmName" value="SHA-256"/>
+        <property name="hashIterations" value="1024"/>
+        <property name="storedCredentialsHexEncoded" value="true"/>
+    </bean>
+
+    <bean id="userRealm" class="com.example.onlineeducationplatform.config.UserRealm">
+        <property name="credentialsMatcher" ref="credentialsMatcher"/>
+    </bean>
+
+    <bean id="securityManager" class="org.apache.shiro.web.mgt.DefaultWebSecurityManager">
+        <property name="realm" ref="userRealm"/>
+    </bean>
+
+    <bean id="shiroFilter" class="org.apache.shiro.spring.web.ShiroFilterFactoryBean">
+        <property name="securityManager" ref="securityManager"/>
+        <property name="loginUrl" value="/api/users/unauthorized"/>
+        <property name="unauthorizedUrl" value="/api/users/forbidden"/>
+        <property name="filterChainDefinitions">
+            <value>
+                /index.jsp = anon
+                /static/** = anon
+
+                /api/users/login = anon
+                /api/users/register = anon
+                /api/users/unauthorized = anon
+                /api/users/forbidden = anon
+
+                /api/users/logout = logout
+
+                /** = authc
+            </value>
+        </property>
+    </bean>
+
+    <bean id="corsConfigurationSource" class="org.springframework.web.cors.UrlBasedCorsConfigurationSource">
+        <property name="corsConfigurations">
+            <map>
+                <entry key="/api/**">
+                    <bean class="org.springframework.web.cors.CorsConfiguration">
+                        <property name="allowedOrigins" value="http://localhost:8081"/>
+                        <property name="allowedMethods">
+                            <list>
+                                <value>GET</value>
+                                <value>POST</value>
+                                <value>PUT</value>
+                                <value>DELETE</value>
+                                <value>OPTIONS</value>
+                            </list>
+                        </property>
+                        <property name="allowedHeaders" value="*"/>
+                        <property name="allowCredentials" value="true"/>
+                    </bean>
+                </entry>
+            </map>
+        </property>
+    </bean>
+
+    <bean id="corsFilter" class="org.springframework.web.filter.CorsFilter">
+        <constructor-arg ref="corsConfigurationSource"/>
+    </bean>
 
 </beans>
