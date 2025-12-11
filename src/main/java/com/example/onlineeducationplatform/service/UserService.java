@@ -1,19 +1,19 @@
 package com.example.onlineeducationplatform.service;
 
 import com.example.onlineeducationplatform.model.User;
-
 import java.util.List;
 import java.util.Set;
 
 public interface UserService {
     User getUserById(int id);
-    // (你可以根据需要添加其他方法)
     void insertUser(User user);
-    void updateUser(User user); // <-- 添加这一行
-    void deleteUser(int id);  // <-- 添加这一行
-    User login(String username, String password); // <-- 添加这一行
-    List<User> getAllUsers(); // <-- 添加这一行
-    //用于Shiro的新方法
+    void updateUser(User user);
+    void deleteUser(int id);
+    List<User> getAllUsers();
+
+    // 关键：提供按用户名查询，供 Controller 登录后调用
+    User selectUserByUsername(String username);
+
     Set<String> findRoles(String username);
     Set<String> findPermissions(String username);
 }

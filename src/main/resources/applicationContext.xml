@@ -35,11 +35,9 @@
     <bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
         <property name="dataSource" ref="dataSource"/>
     </bean>
-
-    <context:component-scan base-package="com.example.onlineeducationplatform.service"/>
-
     <tx:annotation-driven proxy-target-class="true" transaction-manager="transactionManager"/>
 
+    <context:component-scan base-package="com.example.onlineeducationplatform.service"/>
 
     <bean id="lifecycleBeanPostProcessor" class="org.apache.shiro.spring.LifecycleBeanPostProcessor"/>
 
@@ -61,19 +59,22 @@
         <property name="securityManager" ref="securityManager"/>
         <property name="loginUrl" value="/api/users/unauthorized"/>
         <property name="unauthorizedUrl" value="/api/users/forbidden"/>
+
         <property name="filterChainDefinitions">
             <value>
+                /api/users/unauthorized = anon
+                /api/users/unauthorized/** = anon
+                /api/users/forbidden = anon
                 /index.jsp = anon
                 /static/** = anon
 
                 /api/users/login = anon
                 /api/users/register = anon
-                /api/users/unauthorized = anon
-                /api/users/forbidden = anon
 
                 /api/users/logout = logout
 
-                /** = authc
+<!--                /** = authc-->
+                /** = anon
             </value>
         </property>
     </bean>

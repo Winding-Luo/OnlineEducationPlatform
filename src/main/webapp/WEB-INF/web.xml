@@ -4,7 +4,6 @@
          xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/javaee http://xmlns.jcp.org/xml/ns/javaee/web-app_4_0.xsd"
          version="4.0">
 
-    <!-- 1. Spring 上下文加载监听器 (保持不变) -->
     <listener>
         <listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
     </listener>
@@ -13,10 +12,6 @@
         <param-value>classpath:applicationContext.xml</param-value>
     </context-param>
 
-    <!--
-      ==== (修正) ====
-      过滤器顺序 #1: 字符编码过滤器必须是第一个
-    -->
     <filter>
         <filter-name>CharacterEncodingFilter</filter-name>
         <filter-class>org.springframework.web.filter.CharacterEncodingFilter</filter-class>
@@ -30,10 +25,6 @@
         <url-pattern>/*</url-pattern>
     </filter-mapping>
 
-    <!--
-      ==== (修正) ====
-      过滤器顺序 #2: CORS 过滤器 (处理 OPTIONS 预检请求)
-    -->
     <filter>
         <filter-name>corsFilter</filter-name>
         <filter-class>org.springframework.web.filter.DelegatingFilterProxy</filter-class>
@@ -47,10 +38,6 @@
         <url-pattern>/*</url-pattern>
     </filter-mapping>
 
-    <!--
-      ==== (修正) ====
-      过滤器顺序 #3: Shiro 过滤器 (处理安全)
-    -->
     <filter>
         <filter-name>shiroFilter</filter-name>
         <filter-class>org.springframework.web.filter.DelegatingFilterProxy</filter-class>
@@ -64,7 +51,6 @@
         <url-pattern>/*</url-pattern>
     </filter-mapping>
 
-    <!-- Spring MVC Servlet (保持不变) -->
     <servlet>
         <servlet-name>dispatcherServlet</servlet-name>
         <servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
@@ -79,5 +65,8 @@
         <url-pattern>/</url-pattern>
     </servlet-mapping>
 
-</web-app>
+    <session-config>
+        <tracking-mode>COOKIE</tracking-mode>
+    </session-config>
 
+</web-app>

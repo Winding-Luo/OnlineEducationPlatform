@@ -1,13 +1,17 @@
 package com.example.onlineeducationplatform.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class User {
     private int id;
     private String username;
 
-    @JsonIgnore
+    // !!关键修改!!:
+    // 使用 WRITE_ONLY 属性：允许前端传入(反序列化)，但后端返回JSON时隐藏(序列化)
+    // 替代之前的 @JsonIgnore (它会导致前后端都忽略，从而接收不到密码)
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private String password;
+
     private String email;
 
     // Getters and Setters
